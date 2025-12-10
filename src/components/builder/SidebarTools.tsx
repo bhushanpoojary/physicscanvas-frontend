@@ -1,10 +1,16 @@
 import React, { useRef, useState } from 'react';
+import type { ToolType } from '../../physics/SimulationTypes';
 
 interface Tool {
   id: string;
   name: string;
   description: string;
 }
+
+// Track the currently dragging tool type (module level to share across components)
+let currentDraggingTool: ToolType | null = null;
+
+export const getCurrentDraggingTool = () => currentDraggingTool;
 
 const tools: Tool[] = [
   { id: 'block', name: 'Block (mass)', description: "Use for basic Newton's laws demos." },
@@ -15,7 +21,7 @@ const tools: Tool[] = [
 ];
 
 // Helper function to draw tool preview
-const drawToolPreview = (toolId: string, size: number = 60): HTMLCanvasElement => {
+const drawToolPreview = (toolId: string, size: number = 60, isDragPreview: boolean = false): HTMLCanvasElement => {
   const canvas = document.createElement('canvas');
   canvas.width = size;
   canvas.height = size;
@@ -23,6 +29,11 @@ const drawToolPreview = (toolId: string, size: number = 60): HTMLCanvasElement =
   if (!ctx) return canvas;
 
   ctx.clearRect(0, 0, size, size);
+  
+  // Set global alpha for drag preview
+  if (isDragPreview) {
+    ctx.globalAlpha = 0.7;
+  }
 
   switch (toolId) {
     case 'block':
@@ -106,15 +117,20 @@ const SidebarTools: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleDragStart = (e: React.DragEvent, toolId: string) => {
+    currentDraggingTool = toolId as ToolType;
     e.dataTransfer.setData('toolType', toolId);
     e.dataTransfer.effectAllowed = 'copy';
 
-    // Create a larger preview for dragging
-    const dragPreview = drawToolPreview(toolId, 80);
+    // Create a larger, semi-transparent preview for dragging
+    const dragPreview = drawToolPreview(toolId, 120, true);
     dragImageRef.current = dragPreview;
     
     // Set the drag image to the preview canvas
-    e.dataTransfer.setDragImage(dragPreview, 40, 40);
+    e.dataTransfer.setDragImage(dragPreview, 60, 60);
+  };
+
+  const handleDragEnd = () => {
+    currentDraggingTool = null;
   };
 
   // Filter tools based on search query
@@ -161,6 +177,7 @@ const SidebarTools: React.FC = () => {
                 className="pc-tool-card"
                 draggable
                 onDragStart={(e) => handleDragStart(e, tool.id)}
+                onDragEnd={handleDragEnd}
               >
                 <div className="pc-tool-card-header">
                   <div className="pc-tool-icon">
