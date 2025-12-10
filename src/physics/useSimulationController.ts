@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType } from "./SimulationTypes";
+import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType, PhysicsObjectId, ObjectProperties } from "./SimulationTypes";
 import { createPhysicsEngine } from "./PhysicsEngine";
 
 export function useSimulationController(options: SimulationOptions) {
@@ -8,6 +8,8 @@ export function useSimulationController(options: SimulationOptions) {
   
   const [status, setStatus] = useState<SimulationStatus>("idle");
   const [gravityEnabled, setGravityEnabled] = useState(options.gravityEnabled);
+  const [selectedObjectId, setSelectedObjectId] = useState<PhysicsObjectId | null>(null);
+  const [selectedProps, setSelectedProps] = useState<ObjectProperties | null>(null);
 
   // Initialize physics engine when canvas is ready
   useEffect(() => {
@@ -47,6 +49,9 @@ export function useSimulationController(options: SimulationOptions) {
     if (!engineRef.current) return;
     engineRef.current.reset();
     setStatus(engineRef.current.getStatus());
+    // Clear selection on reset
+    setSelectedObjectId(null);
+    setSelectedProps(null);
   };
 
   const stepFrame = () => {
@@ -63,7 +68,29 @@ export function useSimulationController(options: SimulationOptions) {
 
   const addBody = (toolType: ToolType, x: number, y: number) => {
     if (!engineRef.current) return;
-    engineRef.current.addBody(toolType, x, y);
+    const id = engineRef.current.addBody(toolType, x, y);
+    
+    // Select the newly added object
+    setSelectedObjectId(id);
+    const props = engineRef.current.getObjectProperties(id);
+    setSelectedProps(props);
+  };
+
+  const refreshSelectedProps = () => {
+    if (!engineRef.current || !selectedObjectId) return;
+    const props = engineRef.current.getObjectProperties(selectedObjectId);
+    setSelectedProps(props);
+  };
+
+  const updateSelectedProperties = (changes: Partial<ObjectProperties>) => {
+    if (!engineRef.current || !selectedObjectId) return;
+    engineRef.current.updateObjectProperties(selectedObjectId, changes);
+    refreshSelectedProps();
+  };
+
+  const applyForceToSelected = (forceMagnitude: number) => {
+    if (!engineRef.current || !selectedObjectId) return;
+    engineRef.current.applyForce(selectedObjectId, forceMagnitude);
   };
 
   return {
@@ -76,5 +103,9 @@ export function useSimulationController(options: SimulationOptions) {
     stepFrame,
     toggleGravity,
     addBody,
+    selectedObjectId,
+    selectedProps,
+    updateSelectedProperties,
+    applyForceToSelected,
   };
 }

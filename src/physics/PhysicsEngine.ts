@@ -1,7 +1,7 @@
 import Matter from "matter-js";
-import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType } from "./SimulationTypes";
+import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType, PhysicsObjectId, ObjectProperties, ObjectType } from "./SimulationTypes";
 
-const { Engine, World, Bodies, Constraint } = Matter;
+const { Engine, World, Bodies, Constraint, Body } = Matter;
 
 export function createPhysicsEngine(
   canvas: HTMLCanvasElement,
@@ -24,6 +24,12 @@ export function createPhysicsEngine(
   // State
   let status: SimulationStatus = "idle";
   let animationFrameId: number | null = null;
+
+  // Body tracking for properties
+  const bodiesById = new Map<PhysicsObjectId, Matter.Body>();
+  const bodyIdMap = new Map<Matter.Body, PhysicsObjectId>();
+  const bodyTypes = new Map<PhysicsObjectId, ObjectType>();
+  let nextId = 1;
 
   // Initialize scene
   function initializeScene() {
@@ -163,6 +169,12 @@ export function createPhysicsEngine(
 
       status = "idle";
       
+      // Clear body tracking
+      bodiesById.clear();
+      bodyIdMap.clear();
+      bodyTypes.clear();
+      nextId = 1;
+      
       // Recreate scene
       initializeScene();
       
@@ -188,8 +200,10 @@ export function createPhysicsEngine(
       return status;
     },
 
-    addBody(toolType: ToolType, x: number, y: number) {
+    addBody(toolType: ToolType, x: number, y: number): PhysicsObjectId {
       let newBodies: Matter.Body[] = [];
+      let primaryBody: Matter.Body | null = null;
+      let objectType: ObjectType = "box";
 
       switch (toolType) {
         case "block": {
@@ -198,6 +212,8 @@ export function createPhysicsEngine(
             friction: 0.1,
           });
           newBodies.push(block);
+          primaryBody = block;
+          objectType = "box";
           break;
         }
 
@@ -222,6 +238,8 @@ export function createPhysicsEngine(
 
           World.add(world, spring);
           newBodies.push(block1, block2);
+          primaryBody = block2; // The movable part
+          objectType = "spring";
           break;
         }
 
@@ -232,6 +250,8 @@ export function createPhysicsEngine(
             angle: Math.PI / 6, // 30 degrees
           });
           newBodies.push(plane);
+          primaryBody = plane;
+          objectType = "ramp";
           break;
         }
 
@@ -257,6 +277,8 @@ export function createPhysicsEngine(
 
           World.add(world, rod);
           newBodies.push(anchor, bob);
+          primaryBody = bob; // The swinging part
+          objectType = "ball";
           break;
         }
 
@@ -266,13 +288,109 @@ export function createPhysicsEngine(
             isStatic: true,
           });
           newBodies.push(arrow);
+          primaryBody = arrow;
+          objectType = "forceArrow";
           break;
         }
       }
 
       // Add all new bodies to the world
       World.add(world, newBodies);
+
+      // Generate ID and track the primary body
+      const id: PhysicsObjectId = `obj_${nextId++}`;
+      if (primaryBody) {
+        bodiesById.set(id, primaryBody);
+        bodyIdMap.set(primaryBody, id);
+        bodyTypes.set(id, objectType);
+      }
       
+      // Render immediately if not running
+      if (status !== "running") {
+        render();
+      }
+
+      return id;
+    },
+
+    getObjectProperties(id: PhysicsObjectId): ObjectProperties | null {
+      const body = bodiesById.get(id);
+      if (!body) return null;
+
+      const type = bodyTypes.get(id) || "box";
+      const velocityMagnitude = Math.sqrt(
+        body.velocity.x ** 2 + body.velocity.y ** 2
+      );
+      const angleDeg = (body.angle * 180) / Math.PI;
+
+      return {
+        id,
+        type,
+        label: `${type.charAt(0).toUpperCase() + type.slice(1)} #${id.split('_')[1]}`,
+        mass: body.mass,
+        velocity: velocityMagnitude,
+        friction: body.friction,
+        restitution: body.restitution,
+        angle: angleDeg,
+      };
+    },
+
+    updateObjectProperties(id: PhysicsObjectId, changes: Partial<ObjectProperties>): void {
+      const body = bodiesById.get(id);
+      if (!body) return;
+
+      if (changes.mass !== undefined) {
+        Body.setMass(body, changes.mass);
+      }
+
+      if (changes.velocity !== undefined) {
+        // Set velocity magnitude, preserving direction if moving, else horizontal
+        const currentVel = body.velocity;
+        const currentMag = Math.sqrt(currentVel.x ** 2 + currentVel.y ** 2);
+        
+        if (currentMag > 0.01) {
+          // Preserve direction
+          const scale = changes.velocity / currentMag;
+          Body.setVelocity(body, {
+            x: currentVel.x * scale,
+            y: currentVel.y * scale,
+          });
+        } else {
+          // Default to horizontal
+          Body.setVelocity(body, { x: changes.velocity, y: 0 });
+        }
+      }
+
+      if (changes.friction !== undefined) {
+        body.friction = changes.friction;
+      }
+
+      if (changes.restitution !== undefined) {
+        body.restitution = changes.restitution;
+      }
+
+      if (changes.angle !== undefined) {
+        const radians = (changes.angle * Math.PI) / 180;
+        Body.setAngle(body, radians);
+      }
+
+      // Render immediately if not running
+      if (status !== "running") {
+        render();
+      }
+    },
+
+    applyForce(id: PhysicsObjectId, forceMagnitude: number): void {
+      const body = bodiesById.get(id);
+      if (!body) return;
+
+      // Apply horizontal force to the right
+      const force = {
+        x: forceMagnitude,
+        y: 0,
+      };
+      Body.applyForce(body, body.position, force);
+
       // Render immediately if not running
       if (status !== "running") {
         render();

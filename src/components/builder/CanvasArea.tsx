@@ -1,25 +1,30 @@
 import React from 'react';
-import { useSimulationController } from '../../physics/useSimulationController';
 import SimulationControls from './SimulationControls';
-import type { ToolType } from '../../physics/SimulationTypes';
+import type { ToolType, SimulationStatus } from '../../physics/SimulationTypes';
 
-const CanvasArea: React.FC = () => {
-  const {
-    canvasRef,
-    status,
-    gravityEnabled,
-    start,
-    pause,
-    reset,
-    stepFrame,
-    toggleGravity,
-    addBody,
-  } = useSimulationController({
-    width: 900,
-    height: 500,
-    gravityEnabled: true,
-  });
+interface CanvasAreaProps {
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  status: SimulationStatus;
+  gravityEnabled: boolean;
+  onStart: () => void;
+  onPause: () => void;
+  onReset: () => void;
+  onStepFrame: () => void;
+  onToggleGravity: () => void;
+  onAddBody: (toolType: ToolType, x: number, y: number) => void;
+}
 
+const CanvasArea: React.FC<CanvasAreaProps> = ({
+  canvasRef,
+  status,
+  gravityEnabled,
+  onStart,
+  onPause,
+  onReset,
+  onStepFrame,
+  onToggleGravity,
+  onAddBody,
+}) => {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
@@ -37,7 +42,7 @@ const CanvasArea: React.FC = () => {
     const y = e.clientY - rect.top;
 
     // Add the body at the drop position
-    addBody(toolType, x, y);
+    onAddBody(toolType, x, y);
   };
 
   return (
@@ -53,11 +58,11 @@ const CanvasArea: React.FC = () => {
       <SimulationControls
         status={status}
         gravityEnabled={gravityEnabled}
-        onStart={start}
-        onPause={pause}
-        onReset={reset}
-        onStepFrame={stepFrame}
-        onToggleGravity={toggleGravity}
+        onStart={onStart}
+        onPause={onPause}
+        onReset={onReset}
+        onStepFrame={onStepFrame}
+        onToggleGravity={onToggleGravity}
       />
     </div>
   );
