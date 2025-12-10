@@ -150,10 +150,15 @@
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   background-color: #fff;
-  cursor: pointer;
+  cursor: grab;
   transition: all 0.2s ease;
   text-align: left;
   width: 100%;
+  user-select: none;
+}
+
+.pc-tool-card:active {
+  cursor: grabbing;
 }
 
 .pc-tool-card:hover {

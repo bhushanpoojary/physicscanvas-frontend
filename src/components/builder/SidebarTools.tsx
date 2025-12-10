@@ -15,8 +15,9 @@ const tools: Tool[] = [
 ];
 
 const SidebarTools: React.FC = () => {
-  const handleToolClick = (toolId: string, toolName: string) => {
-    console.log(`Tool clicked: ${toolName} (${toolId})`);
+  const handleDragStart = (e: React.DragEvent, toolId: string) => {
+    e.dataTransfer.setData('toolType', toolId);
+    e.dataTransfer.effectAllowed = 'copy';
   };
 
   return (
@@ -24,14 +25,15 @@ const SidebarTools: React.FC = () => {
       <h2 className="pc-sidebar-title">Tools</h2>
       <div className="pc-tools-list">
         {tools.map((tool) => (
-          <button
+          <div
             key={tool.id}
             className="pc-tool-card"
-            onClick={() => handleToolClick(tool.id, tool.name)}
+            draggable
+            onDragStart={(e) => handleDragStart(e, tool.id)}
           >
             <div className="pc-tool-name">{tool.name}</div>
             <div className="pc-tool-description">{tool.description}</div>
-          </button>
+          </div>
         ))}
       </div>
     </div>

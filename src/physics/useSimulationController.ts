@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import type { SimulationAPI, SimulationOptions, SimulationStatus } from "./SimulationTypes";
+import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType } from "./SimulationTypes";
 import { createPhysicsEngine } from "./PhysicsEngine";
 
 export function useSimulationController(options: SimulationOptions) {
@@ -61,6 +61,11 @@ export function useSimulationController(options: SimulationOptions) {
     setGravityEnabled(newGravityState);
   };
 
+  const addBody = (toolType: ToolType, x: number, y: number) => {
+    if (!engineRef.current) return;
+    engineRef.current.addBody(toolType, x, y);
+  };
+
   return {
     canvasRef,
     status,
@@ -70,5 +75,6 @@ export function useSimulationController(options: SimulationOptions) {
     reset,
     stepFrame,
     toggleGravity,
+    addBody,
   };
 }

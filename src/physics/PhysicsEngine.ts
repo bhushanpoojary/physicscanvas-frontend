@@ -1,7 +1,7 @@
 import Matter from "matter-js";
-import type { SimulationAPI, SimulationOptions, SimulationStatus } from "./SimulationTypes";
+import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType } from "./SimulationTypes";
 
-const { Engine, World, Bodies } = Matter;
+const { Engine, World, Bodies, Constraint } = Matter;
 
 export function createPhysicsEngine(
   canvas: HTMLCanvasElement,
@@ -58,6 +58,22 @@ export function createPhysicsEngine(
     ctx.fillStyle = "#f8f9fa";
     ctx.fillRect(0, 0, options.width, options.height);
 
+    // Draw constraints (springs, pendulum rods)
+    const constraints = Matter.Composite.allConstraints(world);
+    constraints.forEach((constraint) => {
+      if (!constraint.bodyA || !constraint.bodyB) return;
+
+      const posA = constraint.bodyA.position;
+      const posB = constraint.bodyB.position;
+
+      ctx.strokeStyle = "#4a90e2";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(posA.x, posA.y);
+      ctx.lineTo(posB.x, posB.y);
+      ctx.stroke();
+    });
+
     // Draw all bodies
     const bodies = Matter.Composite.allBodies(world);
     
@@ -66,29 +82,38 @@ export function createPhysicsEngine(
     ctx.lineWidth = 2;
 
     bodies.forEach((body) => {
-      const { position, vertices, isStatic } = body;
+      const { position, vertices, isStatic, circleRadius } = body;
 
       ctx.save();
       ctx.translate(position.x, position.y);
       ctx.rotate(body.angle);
 
-      // Draw body
-      ctx.beginPath();
-      const localVertices = vertices.map((v) => ({
-        x: v.x - position.x,
-        y: v.y - position.y,
-      }));
+      // Draw circular bodies
+      if (circleRadius) {
+        ctx.beginPath();
+        ctx.arc(0, 0, circleRadius, 0, Math.PI * 2);
+        ctx.fillStyle = isStatic ? "#6c757d" : "#28a745";
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        // Draw polygonal bodies
+        ctx.beginPath();
+        const localVertices = vertices.map((v) => ({
+          x: v.x - position.x,
+          y: v.y - position.y,
+        }));
 
-      ctx.moveTo(localVertices[0].x, localVertices[0].y);
-      for (let i = 1; i < localVertices.length; i++) {
-        ctx.lineTo(localVertices[i].x, localVertices[i].y);
+        ctx.moveTo(localVertices[0].x, localVertices[0].y);
+        for (let i = 1; i < localVertices.length; i++) {
+          ctx.lineTo(localVertices[i].x, localVertices[i].y);
+        }
+        ctx.closePath();
+
+        // Fill color based on static/dynamic
+        ctx.fillStyle = isStatic ? "#6c757d" : "#007bff";
+        ctx.fill();
+        ctx.stroke();
       }
-      ctx.closePath();
-
-      // Fill color based on static/dynamic
-      ctx.fillStyle = isStatic ? "#6c757d" : "#007bff";
-      ctx.fill();
-      ctx.stroke();
 
       ctx.restore();
     });
@@ -161,6 +186,97 @@ export function createPhysicsEngine(
 
     getStatus() {
       return status;
+    },
+
+    addBody(toolType: ToolType, x: number, y: number) {
+      let newBodies: Matter.Body[] = [];
+
+      switch (toolType) {
+        case "block": {
+          const block = Bodies.rectangle(x, y, 80, 80, {
+            restitution: 0.5,
+            friction: 0.1,
+          });
+          newBodies.push(block);
+          break;
+        }
+
+        case "spring": {
+          // Create two connected bodies with a constraint (spring)
+          const block1 = Bodies.rectangle(x - 50, y, 40, 40, {
+            isStatic: true,
+          });
+          const block2 = Bodies.rectangle(x + 50, y, 40, 40);
+          
+          const spring = Constraint.create({
+            bodyA: block1,
+            bodyB: block2,
+            stiffness: 0.05,
+            damping: 0.01,
+            length: 100,
+            render: {
+              lineWidth: 2,
+              strokeStyle: "#4a90e2",
+            },
+          });
+
+          World.add(world, spring);
+          newBodies.push(block1, block2);
+          break;
+        }
+
+        case "inclined-plane": {
+          // Create an inclined plane (static body at 30-degree angle)
+          const plane = Bodies.rectangle(x, y, 200, 20, {
+            isStatic: true,
+            angle: Math.PI / 6, // 30 degrees
+          });
+          newBodies.push(plane);
+          break;
+        }
+
+        case "pendulum": {
+          // Create pendulum: static anchor + dynamic bob + constraint
+          const anchor = Bodies.circle(x, y - 100, 5, {
+            isStatic: true,
+          });
+          const bob = Bodies.circle(x, y + 50, 25, {
+            density: 0.01,
+          });
+
+          const rod = Constraint.create({
+            bodyA: anchor,
+            bodyB: bob,
+            length: 150,
+            stiffness: 1,
+            render: {
+              lineWidth: 2,
+              strokeStyle: "#333",
+            },
+          });
+
+          World.add(world, rod);
+          newBodies.push(anchor, bob);
+          break;
+        }
+
+        case "force-arrow": {
+          // Create a small arrow-shaped body (visual indicator)
+          const arrow = Bodies.rectangle(x, y, 60, 10, {
+            isStatic: true,
+          });
+          newBodies.push(arrow);
+          break;
+        }
+      }
+
+      // Add all new bodies to the world
+      World.add(world, newBodies);
+      
+      // Render immediately if not running
+      if (status !== "running") {
+        render();
+      }
     },
 
     dispose() {

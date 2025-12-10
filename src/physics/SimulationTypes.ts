@@ -6,6 +6,8 @@ export interface SimulationOptions {
   gravityEnabled: boolean;
 }
 
+export type ToolType = "block" | "spring" | "inclined-plane" | "pendulum" | "force-arrow";
+
 export interface SimulationAPI {
   start(): void;
   pause(): void;
@@ -13,5 +15,6 @@ export interface SimulationAPI {
   stepFrame(): void;
   setGravity(enabled: boolean): void;
   getStatus(): SimulationStatus;
+  addBody(toolType: ToolType, x: number, y: number): void;
   dispose(): void;
 }
