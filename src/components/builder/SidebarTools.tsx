@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface Tool {
   id: string;
@@ -103,6 +103,7 @@ const drawToolPreview = (toolId: string, size: number = 60): HTMLCanvasElement =
 
 const SidebarTools: React.FC = () => {
   const dragImageRef = useRef<HTMLCanvasElement | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleDragStart = (e: React.DragEvent, toolId: string) => {
     e.dataTransfer.setData('toolType', toolId);
@@ -116,37 +117,74 @@ const SidebarTools: React.FC = () => {
     e.dataTransfer.setDragImage(dragPreview, 40, 40);
   };
 
+  // Filter tools based on search query
+  const filteredTools = tools.filter((tool) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      tool.name.toLowerCase().includes(query) ||
+      tool.description.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <div className="pc-sidebar-content">
       <h2 className="pc-sidebar-title">Tools</h2>
+      
+      {/* Search Input */}
+      <div className="pc-search-container">
+        <input
+          type="text"
+          className="pc-search-input"
+          placeholder="Search tools..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {searchQuery && (
+          <button
+            className="pc-search-clear"
+            onClick={() => setSearchQuery('')}
+            aria-label="Clear search"
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
+      {/* Tools List */}
       <div className="pc-tools-list">
-        {tools.map((tool) => {
-          const iconCanvas = drawToolPreview(tool.id, 40);
-          return (
-            <div
-              key={tool.id}
-              className="pc-tool-card"
-              draggable
-              onDragStart={(e) => handleDragStart(e, tool.id)}
-            >
-              <div className="pc-tool-card-header">
-                <div className="pc-tool-icon">
-                  <img 
-                    src={iconCanvas.toDataURL()} 
-                    alt={tool.name}
-                    width={40}
-                    height={40}
-                    draggable={false}
-                  />
-                </div>
-                <div className="pc-tool-info">
-                  <div className="pc-tool-name">{tool.name}</div>
-                  <div className="pc-tool-description">{tool.description}</div>
+        {filteredTools.length > 0 ? (
+          filteredTools.map((tool) => {
+            const iconCanvas = drawToolPreview(tool.id, 40);
+            return (
+              <div
+                key={tool.id}
+                className="pc-tool-card"
+                draggable
+                onDragStart={(e) => handleDragStart(e, tool.id)}
+              >
+                <div className="pc-tool-card-header">
+                  <div className="pc-tool-icon">
+                    <img 
+                      src={iconCanvas.toDataURL()} 
+                      alt={tool.name}
+                      width={40}
+                      height={40}
+                      draggable={false}
+                    />
+                  </div>
+                  <div className="pc-tool-info">
+                    <div className="pc-tool-name">{tool.name}</div>
+                    <div className="pc-tool-description">{tool.description}</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          <div className="pc-no-results">
+            No tools found for "{searchQuery}"
+          </div>
+        )}
       </div>
     </div>
   );
