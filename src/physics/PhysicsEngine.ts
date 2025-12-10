@@ -31,6 +31,9 @@ export function createPhysicsEngine(
   const bodyTypes = new Map<PhysicsObjectId, ObjectType>();
   let nextId = 1;
 
+  // Selection state
+  let selectedId: PhysicsObjectId | null = null;
+
   // Initialize scene
   function initializeScene() {
     // Clear existing bodies
@@ -82,17 +85,24 @@ export function createPhysicsEngine(
 
     // Draw all bodies
     const bodies = Matter.Composite.allBodies(world);
-    
-    ctx.strokeStyle = "#333";
-    ctx.fillStyle = "#007bff";
-    ctx.lineWidth = 2;
 
     bodies.forEach((body) => {
       const { position, vertices, isStatic, circleRadius } = body;
+      const bodyId = bodyIdMap.get(body);
+      const isSelected = bodyId === selectedId;
 
       ctx.save();
       ctx.translate(position.x, position.y);
       ctx.rotate(body.angle);
+
+      // Set stroke style based on selection
+      if (isSelected) {
+        ctx.strokeStyle = "#1e90ff";
+        ctx.lineWidth = 4;
+      } else {
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 2;
+      }
 
       // Draw circular bodies
       if (circleRadius) {
@@ -101,6 +111,17 @@ export function createPhysicsEngine(
         ctx.fillStyle = isStatic ? "#6c757d" : "#28a745";
         ctx.fill();
         ctx.stroke();
+
+        // Add outer glow for selected circular bodies
+        if (isSelected) {
+          ctx.strokeStyle = "#1e90ff";
+          ctx.lineWidth = 2;
+          ctx.globalAlpha = 0.3;
+          ctx.beginPath();
+          ctx.arc(0, 0, circleRadius + 4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
       } else {
         // Draw polygonal bodies
         ctx.beginPath();
@@ -119,6 +140,33 @@ export function createPhysicsEngine(
         ctx.fillStyle = isStatic ? "#6c757d" : "#007bff";
         ctx.fill();
         ctx.stroke();
+
+        // Add outer glow for selected polygonal bodies
+        if (isSelected) {
+          // Draw a second, larger outline for the glow effect
+          const offset = 3;
+          ctx.strokeStyle = "#1e90ff";
+          ctx.lineWidth = 6;
+          ctx.globalAlpha = 0.4;
+          
+          ctx.beginPath();
+          const expandedVertices = localVertices.map((v) => {
+            const length = Math.sqrt(v.x * v.x + v.y * v.y);
+            const scale = length > 0 ? (length + offset) / length : 1;
+            return {
+              x: v.x * scale,
+              y: v.y * scale,
+            };
+          });
+          
+          ctx.moveTo(expandedVertices[0].x, expandedVertices[0].y);
+          for (let i = 1; i < expandedVertices.length; i++) {
+            ctx.lineTo(expandedVertices[i].x, expandedVertices[i].y);
+          }
+          ctx.closePath();
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
       }
 
       ctx.restore();
@@ -174,6 +222,7 @@ export function createPhysicsEngine(
       bodyIdMap.clear();
       bodyTypes.clear();
       nextId = 1;
+      selectedId = null;
       
       // Recreate scene
       initializeScene();
@@ -392,6 +441,26 @@ export function createPhysicsEngine(
       Body.applyForce(body, body.position, force);
 
       // Render immediately if not running
+      if (status !== "running") {
+        render();
+      }
+    },
+
+    hitTest(x: number, y: number): PhysicsObjectId | null {
+      const point = { x, y };
+      const bodies = Array.from(bodiesById.values());
+      const found = Matter.Query.point(bodies, point);
+      
+      if (!found.length) return null;
+
+      const body = found[0];
+      const id = bodyIdMap.get(body) ?? null;
+      return id;
+    },
+
+    setSelectedId(id: PhysicsObjectId | null): void {
+      selectedId = id;
+      // Re-render to show selection highlight
       if (status !== "running") {
         render();
       }

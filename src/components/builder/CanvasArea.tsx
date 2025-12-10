@@ -12,6 +12,7 @@ interface CanvasAreaProps {
   onStepFrame: () => void;
   onToggleGravity: () => void;
   onAddBody: (toolType: ToolType, x: number, y: number) => void;
+  onSelectObjectAtPoint: (x: number, y: number) => void;
 }
 
 const CanvasArea: React.FC<CanvasAreaProps> = ({
@@ -24,6 +25,7 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
   onStepFrame,
   onToggleGravity,
   onAddBody,
+  onSelectObjectAtPoint,
 }) => {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -45,6 +47,16 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
     onAddBody(toolType, x, y);
   };
 
+  const handleCanvasClick: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
+    if (!canvasRef.current) return;
+    
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    onSelectObjectAtPoint(x, y);
+  };
+
   return (
     <div className="pc-canvas-content">
       <h2 className="pc-canvas-title">Canvas</h2>
@@ -53,7 +65,14 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <canvas ref={canvasRef} width={900} height={500} className="pc-canvas-element" />
+        <canvas 
+          ref={canvasRef} 
+          width={900} 
+          height={500} 
+          className="pc-canvas-element"
+          onClick={handleCanvasClick}
+          style={{ cursor: 'pointer' }}
+        />
       </div>
       <SimulationControls
         status={status}

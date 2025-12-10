@@ -25,6 +25,7 @@ const ThreePaneLayout: React.FC<ThreePaneLayoutProps> = ({ simulation }) => {
           onStepFrame={simulation.stepFrame}
           onToggleGravity={simulation.toggleGravity}
           onAddBody={simulation.addBody}
+          onSelectObjectAtPoint={simulation.selectObjectAtPoint}
         />
       </main>
       <aside className="pc-properties">

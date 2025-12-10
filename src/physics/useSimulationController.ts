@@ -72,6 +72,7 @@ export function useSimulationController(options: SimulationOptions) {
     
     // Select the newly added object
     setSelectedObjectId(id);
+    engineRef.current.setSelectedId(id);
     const props = engineRef.current.getObjectProperties(id);
     setSelectedProps(props);
   };
@@ -93,6 +94,23 @@ export function useSimulationController(options: SimulationOptions) {
     engineRef.current.applyForce(selectedObjectId, forceMagnitude);
   };
 
+  const selectObjectAtPoint = (x: number, y: number) => {
+    if (!engineRef.current) return;
+    const id = engineRef.current.hitTest(x, y);
+    
+    if (!id) {
+      setSelectedObjectId(null);
+      setSelectedProps(null);
+      engineRef.current.setSelectedId(null);
+      return;
+    }
+
+    setSelectedObjectId(id);
+    engineRef.current.setSelectedId(id);
+    const props = engineRef.current.getObjectProperties(id);
+    setSelectedProps(props);
+  };
+
   return {
     canvasRef,
     status,
@@ -107,5 +125,6 @@ export function useSimulationController(options: SimulationOptions) {
     selectedProps,
     updateSelectedProperties,
     applyForceToSelected,
+    selectObjectAtPoint,
   };
 }

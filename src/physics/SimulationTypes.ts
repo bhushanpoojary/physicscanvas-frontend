@@ -41,5 +41,7 @@ export interface SimulationAPI {
   getObjectProperties(id: PhysicsObjectId): ObjectProperties | null;
   updateObjectProperties(id: PhysicsObjectId, changes: Partial<ObjectProperties>): void;
   applyForce(id: PhysicsObjectId, forceMagnitude: number): void;
+  hitTest(x: number, y: number): PhysicsObjectId | null;
+  setSelectedId(id: PhysicsObjectId | null): void;
   dispose(): void;
 }
