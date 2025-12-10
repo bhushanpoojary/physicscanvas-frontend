@@ -1,15 +1,17 @@
 import { useRef, useState, useEffect } from "react";
-import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType, PhysicsObjectId, ObjectProperties } from "./SimulationTypes";
+import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType, PhysicsObjectId, ObjectProperties, ScenePresetId } from "./SimulationTypes";
 import { createPhysicsEngine } from "./PhysicsEngine";
 
 export function useSimulationController(options: SimulationOptions) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const engineRef = useRef<SimulationAPI | null>(null);
+  const statusRef = useRef<SimulationStatus>("idle");
   
   const [status, setStatus] = useState<SimulationStatus>("idle");
   const [gravityEnabled, setGravityEnabled] = useState(options.gravityEnabled);
   const [selectedObjectId, setSelectedObjectId] = useState<PhysicsObjectId | null>(null);
   const [selectedProps, setSelectedProps] = useState<ObjectProperties | null>(null);
+  const [currentPreset, setCurrentPreset] = useState<ScenePresetId>("empty");
 
   // Initialize physics engine when canvas is ready
   useEffect(() => {
@@ -124,6 +126,28 @@ export function useSimulationController(options: SimulationOptions) {
     refreshSelectedProps();
   };
 
+  const loadPreset = (preset: ScenePresetId) => {
+    if (!engineRef.current) return;
+
+    // Pause simulation and set status to idle
+    statusRef.current = "idle";
+    setStatus("idle");
+
+    const primaryId = engineRef.current.loadPreset(preset);
+    setCurrentPreset(preset);
+
+    if (primaryId) {
+      setSelectedObjectId(primaryId);
+      engineRef.current.setSelectedId(primaryId);
+      const props = engineRef.current.getObjectProperties(primaryId);
+      setSelectedProps(props);
+    } else {
+      setSelectedObjectId(null);
+      engineRef.current.setSelectedId(null);
+      setSelectedProps(null);
+    }
+  };
+
   return {
     canvasRef,
     status,
@@ -141,5 +165,7 @@ export function useSimulationController(options: SimulationOptions) {
     selectObjectAtPoint,
     deleteSelectedObject,
     moveSelectedObject,
+    currentPreset,
+    loadPreset,
   };
 }

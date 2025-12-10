@@ -1,5 +1,5 @@
 import Matter from "matter-js";
-import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType, PhysicsObjectId, ObjectProperties, ObjectType } from "./SimulationTypes";
+import type { SimulationAPI, SimulationOptions, SimulationStatus, ToolType, PhysicsObjectId, ObjectProperties, ObjectType, ScenePresetId } from "./SimulationTypes";
 
 const { Engine, World, Bodies, Constraint, Body } = Matter;
 
@@ -510,6 +510,196 @@ export function createPhysicsEngine(
       if (status !== "running") {
         render();
       }
+    },
+
+    loadPreset(preset: ScenePresetId): PhysicsObjectId | null {
+      // Clear world and reset state
+      World.clear(world, false);
+      Engine.clear(engine);
+      
+      bodiesById.clear();
+      bodyIdMap.clear();
+      bodyTypes.clear();
+      nextId = 1;
+      selectedId = null;
+      
+      const createdIds: PhysicsObjectId[] = [];
+      const width = options.width;
+      const height = options.height;
+
+      // Helper to add ground
+      const addGround = () => {
+        const ground = Bodies.rectangle(
+          width / 2,
+          height - 30,
+          width,
+          60,
+          { isStatic: true }
+        );
+        World.add(world, ground);
+        const groundId = `obj_${nextId++}`;
+        bodiesById.set(groundId, ground);
+        bodyIdMap.set(ground, groundId);
+        bodyTypes.set(groundId, "ground");
+        return groundId;
+      };
+
+      // Helper to add ball
+      const addBall = (x: number, y: number, radius = 30, opts = {}) => {
+        const ball = Bodies.circle(x, y, radius, {
+          restitution: 0.6,
+          friction: 0.05,
+          ...opts,
+        });
+        World.add(world, ball);
+        const ballId = `obj_${nextId++}`;
+        bodiesById.set(ballId, ball);
+        bodyIdMap.set(ball, ballId);
+        bodyTypes.set(ballId, "ball");
+        return ballId;
+      };
+
+      // Helper to add box
+      const addBox = (x: number, y: number, w = 80, h = 80, opts = {}) => {
+        const box = Bodies.rectangle(x, y, w, h, {
+          restitution: 0.5,
+          friction: 0.1,
+          ...opts,
+        });
+        World.add(world, box);
+        const boxId = `obj_${nextId++}`;
+        bodiesById.set(boxId, box);
+        bodyIdMap.set(box, boxId);
+        bodyTypes.set(boxId, "box");
+        return boxId;
+      };
+
+      // Helper to add ramp
+      const addRamp = (x: number, y: number, angleDeg: number) => {
+        const ramp = Bodies.rectangle(x, y, 200, 20, {
+          isStatic: true,
+          angle: (angleDeg * Math.PI) / 180,
+        });
+        World.add(world, ramp);
+        const rampId = `obj_${nextId++}`;
+        bodiesById.set(rampId, ramp);
+        bodyIdMap.set(ramp, rampId);
+        bodyTypes.set(rampId, "ramp");
+        return rampId;
+      };
+
+      // Helper to add pendulum
+      const addPendulum = (x: number, y: number) => {
+        const anchor = Bodies.circle(x, y - 100, 5, {
+          isStatic: true,
+        });
+        const bob = Bodies.circle(x, y + 50, 25, {
+          density: 0.01,
+        });
+
+        const rod = Constraint.create({
+          bodyA: anchor,
+          bodyB: bob,
+          length: 150,
+          stiffness: 1,
+          render: {
+            lineWidth: 2,
+            strokeStyle: "#333",
+          },
+        });
+
+        World.add(world, [anchor, bob, rod]);
+        
+        const bobId = `obj_${nextId++}`;
+        bodiesById.set(bobId, bob);
+        bodyIdMap.set(bob, bobId);
+        bodyTypes.set(bobId, "ball");
+        return bobId;
+      };
+
+      // Helper to add spring-mass system
+      const addSpringMass = (x: number, y: number) => {
+        const anchor = Bodies.rectangle(x - 50, y, 40, 40, {
+          isStatic: true,
+        });
+        const mass = Bodies.rectangle(x + 50, y, 40, 40);
+
+        const spring = Constraint.create({
+          bodyA: anchor,
+          bodyB: mass,
+          stiffness: 0.05,
+          damping: 0.01,
+          length: 100,
+          render: {
+            lineWidth: 2,
+            strokeStyle: "#4a90e2",
+          },
+        });
+
+        World.add(world, [anchor, mass, spring]);
+        
+        const massId = `obj_${nextId++}`;
+        bodiesById.set(massId, mass);
+        bodyIdMap.set(mass, massId);
+        bodyTypes.set(massId, "spring");
+        return massId;
+      };
+
+      // Create preset scenes
+      switch (preset) {
+        case "empty":
+          addGround();
+          break;
+
+        case "freeFall": {
+          addGround();
+          const ballId = addBall(width / 2, height / 4);
+          createdIds.push(ballId);
+          break;
+        }
+
+        case "projectile": {
+          addGround();
+          const projId = addBall(width * 0.2, height * 0.6, 30, { restitution: 0.4 });
+          // Give it initial velocity upwards/right
+          const body = bodiesById.get(projId);
+          if (body) {
+            Body.setVelocity(body, { x: 10, y: -15 });
+          }
+          createdIds.push(projId);
+          break;
+        }
+
+        case "pendulum": {
+          addGround();
+          const pendulumId = addPendulum(width / 2, height / 3);
+          createdIds.push(pendulumId);
+          break;
+        }
+
+        case "blocksOnRamp": {
+          addGround();
+          const rampId = addRamp(width / 2, height * 0.7, 30);
+          createdIds.push(rampId);
+          const box1Id = addBox(width / 2 - 40, height * 0.5);
+          const box2Id = addBox(width / 2, height * 0.4);
+          createdIds.push(box1Id, box2Id);
+          break;
+        }
+
+        case "springMass": {
+          addGround();
+          const springMassId = addSpringMass(width / 2, height / 3);
+          createdIds.push(springMassId);
+          break;
+        }
+      }
+
+      // Render the new scene
+      render();
+
+      // Return the primary object (last non-ground object)
+      return createdIds.length > 0 ? createdIds[createdIds.length - 1] : null;
     },
 
     dispose() {

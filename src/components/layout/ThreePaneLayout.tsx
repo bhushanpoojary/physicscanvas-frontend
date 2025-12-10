@@ -19,6 +19,7 @@ const ThreePaneLayout: React.FC<ThreePaneLayoutProps> = ({ simulation }) => {
           canvasRef={simulation.canvasRef}
           status={simulation.status}
           gravityEnabled={simulation.gravityEnabled}
+          currentPreset={simulation.currentPreset}
           onStart={simulation.start}
           onPause={simulation.pause}
           onReset={simulation.reset}
@@ -28,6 +29,7 @@ const ThreePaneLayout: React.FC<ThreePaneLayoutProps> = ({ simulation }) => {
           onSelectObjectAtPoint={simulation.selectObjectAtPoint}
           onDeleteSelected={simulation.deleteSelectedObject}
           onMoveSelected={simulation.moveSelectedObject}
+          onLoadPreset={simulation.loadPreset}
         />
       </main>
       <aside className="pc-properties">

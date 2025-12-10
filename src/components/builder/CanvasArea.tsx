@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SimulationControls from './SimulationControls';
-import type { ToolType, SimulationStatus } from '../../physics/SimulationTypes';
+import type { ToolType, SimulationStatus, ScenePresetId } from '../../physics/SimulationTypes';
 import { getCurrentDraggingTool } from './SidebarTools';
 
 interface CanvasAreaProps {
   canvasRef: React.RefObject<HTMLCanvasElement>;
   status: SimulationStatus;
   gravityEnabled: boolean;
+  currentPreset: ScenePresetId;
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
@@ -16,6 +17,7 @@ interface CanvasAreaProps {
   onSelectObjectAtPoint: (x: number, y: number) => void;
   onDeleteSelected: () => void;
   onMoveSelected: (x: number, y: number) => void;
+  onLoadPreset: (preset: ScenePresetId) => void;
 }
 
 interface ContextMenuState {
@@ -42,6 +44,7 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
   canvasRef,
   status,
   gravityEnabled,
+  currentPreset,
   onStart,
   onPause,
   onReset,
@@ -51,6 +54,7 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
   onSelectObjectAtPoint,
   onDeleteSelected,
   onMoveSelected,
+  onLoadPreset,
 }) => {
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     visible: false,
@@ -281,7 +285,26 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
 
   return (
     <div className="pc-canvas-content">
-      <h2 className="pc-canvas-title">Canvas</h2>
+      <div className="pc-canvas-header">
+        <h2 className="pc-canvas-title">Canvas</h2>
+        <div className="pc-canvas-presets">
+          <label>
+            Scene:
+            <select
+              value={currentPreset}
+              onChange={(e) => onLoadPreset(e.target.value as ScenePresetId)}
+              className="pc-preset-select"
+            >
+              <option value="empty">Empty Scene</option>
+              <option value="freeFall">Free-fall</option>
+              <option value="projectile">Projectile</option>
+              <option value="pendulum">Pendulum</option>
+              <option value="blocksOnRamp">Blocks on ramp</option>
+              <option value="springMass">Spring-mass</option>
+            </select>
+          </label>
+        </div>
+      </div>
       <div 
         className="pc-canvas-workspace"
         onDragEnter={handleDragEnter}

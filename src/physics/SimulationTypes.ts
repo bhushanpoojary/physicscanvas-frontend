@@ -1,5 +1,13 @@
 export type SimulationStatus = "idle" | "running" | "paused";
 
+export type ScenePresetId =
+  | "empty"
+  | "freeFall"
+  | "projectile"
+  | "pendulum"
+  | "blocksOnRamp"
+  | "springMass";
+
 export interface SimulationOptions {
   width: number;
   height: number;
@@ -45,5 +53,6 @@ export interface SimulationAPI {
   applyForce(id: PhysicsObjectId, forceMagnitude: number): void;
   hitTest(x: number, y: number): PhysicsObjectId | null;
   setSelectedId(id: PhysicsObjectId | null): void;
+  loadPreset(preset: ScenePresetId): PhysicsObjectId | null;
   dispose(): void;
 }
