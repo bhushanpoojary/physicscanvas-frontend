@@ -144,15 +144,12 @@
 .pc-tool-card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
-  padding: 1rem;
+  padding: 0.75rem;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   background-color: #fff;
   cursor: grab;
   transition: all 0.2s ease;
-  text-align: left;
   width: 100%;
   user-select: none;
 }
@@ -168,14 +165,46 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
+.pc-tool-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.pc-tool-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.pc-tool-icon img {
+  display: block;
+  pointer-events: none;
+}
+
+.pc-tool-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
 .pc-tool-name {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #1a1a1a;
 }
 
 .pc-tool-description {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #666;
   line-height: 1.3;
 }
