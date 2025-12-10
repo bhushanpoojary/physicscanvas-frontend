@@ -59,6 +59,12 @@ export function createPhysicsEngine(
 
     // Add bodies to world
     World.add(world, [ground, box]);
+
+    // Track the initial box (not the ground, as it shouldn't be deleted)
+    const boxId = `body-${nextId++}`;
+    bodiesById.set(boxId, box);
+    bodyIdMap.set(box, boxId);
+    bodyTypes.set(boxId, "box");
   }
 
   // Render the scene
@@ -247,6 +253,29 @@ export function createPhysicsEngine(
 
     getStatus() {
       return status;
+    },
+
+    deleteBody(id: PhysicsObjectId): void {
+      const body = bodiesById.get(id);
+      if (!body) return;
+
+      // Remove the body from the world
+      World.remove(world, body, true);
+
+      // Clean up tracking maps
+      bodiesById.delete(id);
+      bodyIdMap.delete(body);
+      bodyTypes.delete(id);
+
+      // Clear selection if this was the selected body
+      if (selectedId === id) {
+        selectedId = null;
+      }
+
+      // Render immediately if not running
+      if (status !== "running") {
+        render();
+      }
     },
 
     addBody(toolType: ToolType, x: number, y: number): PhysicsObjectId {

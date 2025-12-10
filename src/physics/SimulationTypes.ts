@@ -38,6 +38,7 @@ export interface SimulationAPI {
   setGravity(enabled: boolean): void;
   getStatus(): SimulationStatus;
   addBody(toolType: ToolType, x: number, y: number): PhysicsObjectId;
+  deleteBody(id: PhysicsObjectId): void;
   getObjectProperties(id: PhysicsObjectId): ObjectProperties | null;
   updateObjectProperties(id: PhysicsObjectId, changes: Partial<ObjectProperties>): void;
   applyForce(id: PhysicsObjectId, forceMagnitude: number): void;

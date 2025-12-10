@@ -111,6 +111,13 @@ export function useSimulationController(options: SimulationOptions) {
     setSelectedProps(props);
   };
 
+  const deleteSelectedObject = () => {
+    if (!engineRef.current || !selectedObjectId) return;
+    engineRef.current.deleteBody(selectedObjectId);
+    setSelectedObjectId(null);
+    setSelectedProps(null);
+  };
+
   return {
     canvasRef,
     status,
@@ -126,5 +133,6 @@ export function useSimulationController(options: SimulationOptions) {
     updateSelectedProperties,
     applyForceToSelected,
     selectObjectAtPoint,
+    deleteSelectedObject,
   };
 }
