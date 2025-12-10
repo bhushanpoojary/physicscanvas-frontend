@@ -39,6 +39,7 @@ export interface SimulationAPI {
   getStatus(): SimulationStatus;
   addBody(toolType: ToolType, x: number, y: number): PhysicsObjectId;
   deleteBody(id: PhysicsObjectId): void;
+  moveBody(id: PhysicsObjectId, x: number, y: number): void;
   getObjectProperties(id: PhysicsObjectId): ObjectProperties | null;
   updateObjectProperties(id: PhysicsObjectId, changes: Partial<ObjectProperties>): void;
   applyForce(id: PhysicsObjectId, forceMagnitude: number): void;

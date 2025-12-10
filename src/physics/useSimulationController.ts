@@ -118,6 +118,12 @@ export function useSimulationController(options: SimulationOptions) {
     setSelectedProps(null);
   };
 
+  const moveSelectedObject = (x: number, y: number) => {
+    if (!engineRef.current || !selectedObjectId) return;
+    engineRef.current.moveBody(selectedObjectId, x, y);
+    refreshSelectedProps();
+  };
+
   return {
     canvasRef,
     status,
@@ -134,5 +140,6 @@ export function useSimulationController(options: SimulationOptions) {
     applyForceToSelected,
     selectObjectAtPoint,
     deleteSelectedObject,
+    moveSelectedObject,
   };
 }

@@ -14,12 +14,20 @@ interface CanvasAreaProps {
   onAddBody: (toolType: ToolType, x: number, y: number) => void;
   onSelectObjectAtPoint: (x: number, y: number) => void;
   onDeleteSelected: () => void;
+  onMoveSelected: (x: number, y: number) => void;
 }
 
 interface ContextMenuState {
   visible: boolean;
   x: number;
   y: number;
+}
+
+interface DragState {
+  isDragging: boolean;
+  objectId: string | null;
+  startX: number;
+  startY: number;
 }
 
 const CanvasArea: React.FC<CanvasAreaProps> = ({
@@ -34,6 +42,7 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
   onAddBody,
   onSelectObjectAtPoint,
   onDeleteSelected,
+  onMoveSelected,
 }) => {
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     visible: false,
@@ -41,6 +50,13 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
     y: 0,
   });
   const contextMenuRef = useRef<HTMLDivElement>(null);
+  
+  const [dragState, setDragState] = useState<DragState>({
+    isDragging: false,
+    objectId: null,
+    startX: 0,
+    startY: 0,
+  });
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -62,7 +78,8 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
     onAddBody(toolType, x, y);
   };
 
-  const handleCanvasClick: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
+  const handleMouseDown: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
+    if (e.button !== 0) return; // Only handle left click
     if (!canvasRef.current) return;
     
     const rect = canvasRef.current.getBoundingClientRect();
@@ -71,6 +88,38 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
     
     onSelectObjectAtPoint(x, y);
     setContextMenu({ visible: false, x: 0, y: 0 }); // Hide context menu on click
+    
+    // Start drag state
+    setDragState({
+      isDragging: true,
+      objectId: null, // Will be set if an object is selected
+      startX: x,
+      startY: y,
+    });
+  };
+
+  const handleMouseMove: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
+    if (!dragState.isDragging || !canvasRef.current) return;
+    
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Move the selected object
+    onMoveSelected(x, y);
+  };
+
+  const handleMouseUp: React.MouseEventHandler<HTMLCanvasElement> = () => {
+    setDragState({
+      isDragging: false,
+      objectId: null,
+      startX: 0,
+      startY: 0,
+    });
+  };
+
+  const handleCanvasClick: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
+    // Click is handled by mouseDown for drag functionality
   };
 
   const handleContextMenu: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
@@ -125,9 +174,12 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
           width={900} 
           height={500} 
           className="pc-canvas-element"
-          onClick={handleCanvasClick}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
           onContextMenu={handleContextMenu}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: dragState.isDragging ? 'grabbing' : 'grab' }}
         />
         
         {/* Context Menu */}

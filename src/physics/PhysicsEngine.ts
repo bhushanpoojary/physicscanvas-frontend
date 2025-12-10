@@ -278,6 +278,23 @@ export function createPhysicsEngine(
       }
     },
 
+    moveBody(id: PhysicsObjectId, x: number, y: number): void {
+      const body = bodiesById.get(id);
+      if (!body) return;
+
+      // Set the body position
+      Body.setPosition(body, { x, y });
+
+      // Reset velocity when manually moving
+      Body.setVelocity(body, { x: 0, y: 0 });
+      Body.setAngularVelocity(body, 0);
+
+      // Render immediately if not running
+      if (status !== "running") {
+        render();
+      }
+    },
+
     addBody(toolType: ToolType, x: number, y: number): PhysicsObjectId {
       let newBodies: Matter.Body[] = [];
       let primaryBody: Matter.Body | null = null;
