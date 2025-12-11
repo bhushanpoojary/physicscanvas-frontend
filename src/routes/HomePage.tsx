@@ -22,65 +22,40 @@ const HomePage: React.FC = () => {
   return (
     <div className="pc-landing">
       <header className="pc-landing-header">
-        <h1 className="pc-landing-title">PhysicsCanvas</h1>
+        <div className="pc-landing-header-content">
+          <h1 className="pc-landing-title">
+            <span className="pc-title-icon">⚛️</span>
+            PhysicsCanvas
+          </h1>
+          <p className="pc-landing-subtitle">Interactive Physics Simulations</p>
+        </div>
       </header>
       <main className="pc-landing-content">
-        <p className="pc-landing-tagline">
-          Create interactive physics simulations for your classroom.
-        </p>
+        <div className="pc-hero-section">
+          <h2 className="pc-hero-title">
+            Create interactive physics simulations for your classroom
+          </h2>
+          <p className="pc-hero-description">
+            Explore classical mechanics, quantum physics, and relativity with beautiful, 
+            interactive visualizations designed for teaching and learning.
+          </p>
+        </div>
         
         {/* Search Bar */}
-        <div style={{
-          maxWidth: '600px',
-          margin: '0 auto 2rem auto',
-          padding: '0 1rem'
-        }}>
-          <div style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center'
-          }}>
-            <span style={{
-              position: 'absolute',
-              left: '1rem',
-              fontSize: '1.2rem',
-              color: '#888'
-            }}>
-              🔍
-            </span>
+        <div className="pc-search-wrapper">
+          <div className="pc-search-container-home">
+            <span className="pc-search-icon">🔍</span>
             <input
               type="text"
               placeholder="Search labs... (e.g., 'quantum', 'collision', 'orbital')"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.9rem 1rem 0.9rem 3rem',
-                fontSize: '1rem',
-                border: '2px solid #444',
-                borderRadius: '12px',
-                background: '#1a1a1a',
-                color: '#e0e0e0',
-                outline: 'none',
-                transition: 'border-color 0.2s',
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#4a90e2'}
-              onBlur={(e) => e.target.style.borderColor = '#444'}
+              className="pc-search-input-home"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                style={{
-                  position: 'absolute',
-                  right: '1rem',
-                  background: 'none',
-                  border: 'none',
-                  color: '#888',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  padding: '0',
-                  lineHeight: '1',
-                }}
+                className="pc-search-clear-home"
                 title="Clear search"
               >
                 ×
@@ -89,27 +64,41 @@ const HomePage: React.FC = () => {
           </div>
         </div>
 
-        <h2 className="pc-labs-heading">
-          {searchQuery ? `Found ${filteredLabs.length} lab${filteredLabs.length !== 1 ? 's' : ''}` : 'Choose Your Physics Lab'}
-        </h2>
-        
-        {filteredLabs.length > 0 ? (
-          <div className="pc-labs-grid">
-            {filteredLabs.map(lab => (
-              <LabCard key={lab.id} lab={lab} />
-            ))}
-          </div>
-        ) : (
-          <div style={{
-            textAlign: 'center',
-            padding: '3rem 1rem',
-            color: '#888'
-          }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
-            <p style={{ fontSize: '1.1rem' }}>No labs found matching "{searchQuery}"</p>
-            <p style={{ fontSize: '0.9rem' }}>Try searching for: quantum, collision, orbital, chaos, waves</p>
-          </div>
-        )}
+        <div className="pc-labs-section">
+          <h2 className="pc-labs-heading">
+            {searchQuery ? (
+              <>
+                <span className="pc-heading-icon">📊</span>
+                Found {filteredLabs.length} lab{filteredLabs.length !== 1 ? 's' : ''}
+              </>
+            ) : (
+              <>
+                <span className="pc-heading-icon">🔬</span>
+                Choose Your Physics Lab
+              </>
+            )}
+          </h2>
+          
+          {filteredLabs.length > 0 ? (
+            <div className="pc-labs-grid">
+              {filteredLabs.map(lab => (
+                <LabCard key={lab.id} lab={lab} />
+              ))}
+            </div>
+          ) : (
+            <div className="pc-no-results-home">
+              <div className="pc-no-results-icon">🔍</div>
+              <h3 className="pc-no-results-title">No labs found</h3>
+              <p className="pc-no-results-text">
+                No labs found matching "<strong>{searchQuery}</strong>"
+              </p>
+              <p className="pc-no-results-hint">
+                Try searching for: <span>quantum</span>, <span>collision</span>, 
+                <span>orbital</span>, <span>chaos</span>, <span>waves</span>
+              </p>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

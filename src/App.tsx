@@ -7,6 +7,7 @@ import { QuantumWavePage } from './routes/QuantumWavePage'
 import { UncertaintyPage } from './routes/UncertaintyPage'
 import { CollisionPage } from './labs/collisions/CollisionPage'
 import { RotationalPage } from './labs/rotational/RotationalPage'
+import { OscillationPage } from './labs/oscillations/OscillationPage'
 import { ComingSoonPage } from './routes/ComingSoonPage'
 import BuilderPage from './routes/BuilderPage'
 import './App.css'
@@ -23,7 +24,7 @@ function App() {
       {/* New Classical Mechanics Labs */}
       <Route path="/collisions" element={<CollisionPage />} />
       <Route path="/rotational" element={<RotationalPage />} />
-      <Route path="/oscillations" element={<ComingSoonPage />} />
+      <Route path="/oscillations" element={<OscillationPage />} />
       <Route path="/chaos" element={<ComingSoonPage />} />
       <Route path="/orbital" element={<ComingSoonPage />} />
       
