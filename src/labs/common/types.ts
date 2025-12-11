@@ -47,7 +47,7 @@ export const LABS: LabDefinition[] = [
     icon: '📊',
     route: '/uncertainty',
     color: '#e74c3c',
-    isAvailable: false, // Coming soon
+    isAvailable: true,
   },
 ];
 

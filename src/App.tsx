@@ -4,6 +4,7 @@ import HomePage from './routes/HomePage'
 import MechanicsPage from './routes/MechanicsPage'
 import RelativityPage from './routes/RelativityPage'
 import { QuantumWavePage } from './routes/QuantumWavePage'
+import { UncertaintyPage } from './routes/UncertaintyPage'
 import BuilderPage from './routes/BuilderPage'
 import './App.css'
 
@@ -14,6 +15,7 @@ function App() {
       <Route path="/mechanics" element={<MechanicsPage />} />
       <Route path="/relativity" element={<RelativityPage />} />
       <Route path="/quantum-wave" element={<QuantumWavePage />} />
+      <Route path="/uncertainty" element={<UncertaintyPage />} />
       {/* Legacy route redirect for backwards compatibility */}
       <Route path="/builder" element={<Navigate to="/mechanics" replace />} />
       {/* Fallback to home */}
