@@ -1,20 +1,31 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  labName?: string;
+}
+
+const Header: React.FC<HeaderProps> = ({ labName = 'Mechanics Lab' }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <header className="pc-header">
       <div className="pc-header-left">
-        <h1 className="pc-header-title">PhysicsCanvas</h1>
+        <button 
+          className="pc-header-home-btn"
+          onClick={() => navigate('/')}
+          title="Back to Home"
+        >
+          <h1 className="pc-header-title">PhysicsCanvas</h1>
+        </button>
       </div>
       <div className="pc-header-middle">
-        <span className="pc-header-subtitle">Simulation Builder (MVP)</span>
+        <span className="pc-header-subtitle">{labName}</span>
       </div>
       <div className="pc-header-right">
         <button className="pc-btn pc-btn-secondary" onClick={() => navigate('/')}>
-          Home
+          ← Home
         </button>
         <button className="pc-btn pc-btn-secondary" disabled>
           Share

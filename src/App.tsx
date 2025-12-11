@@ -1,37 +1,19 @@
 import React from 'react'
-import { Routes, Route, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import HomePage from './routes/HomePage'
+import MechanicsPage from './routes/MechanicsPage'
 import BuilderPage from './routes/BuilderPage'
 import './App.css'
-
-// Landing page component
-const LandingPage: React.FC = () => {
-  const navigate = useNavigate();
-
-  return (
-    <div className="pc-landing">
-      <header className="pc-landing-header">
-        <h1 className="pc-landing-title">PhysicsCanvas</h1>
-      </header>
-      <main className="pc-landing-content">
-        <p className="pc-landing-tagline">
-          Create interactive physics simulations for your classroom.
-        </p>
-        <button 
-          className="pc-btn pc-btn-primary pc-btn-large"
-          onClick={() => navigate('/builder')}
-        >
-          Open Builder
-        </button>
-      </main>
-    </div>
-  );
-};
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/builder" element={<BuilderPage />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/mechanics" element={<MechanicsPage />} />
+      {/* Legacy route redirect for backwards compatibility */}
+      <Route path="/builder" element={<Navigate to="/mechanics" replace />} />
+      {/* Fallback to home */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
