@@ -38,7 +38,7 @@ export const LABS: LabDefinition[] = [
     icon: '🌊',
     route: '/quantum-wave',
     color: '#1abc9c',
-    isAvailable: false, // Coming soon
+    isAvailable: true,
   },
   {
     id: 'uncertainty',
