@@ -57,11 +57,18 @@
 
 .pc-labs-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
-  max-width: 1200px;
+  max-width: 1400px;
   width: 100%;
   padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .pc-labs-grid {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+  }
 }
 
 .pc-lab-card {
