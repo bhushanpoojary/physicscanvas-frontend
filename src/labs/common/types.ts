@@ -29,7 +29,7 @@ export const LABS: LabDefinition[] = [
     icon: '🌌',
     route: '/relativity',
     color: '#9b59b6',
-    isAvailable: false, // Coming soon
+    isAvailable: true,
   },
   {
     id: 'quantum-wave',
