@@ -52,27 +52,27 @@ const RelativityTools: React.FC<RelativityToolsProps> = ({
         ))}
       </div>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h3 className="pc-sidebar-title" style={{ fontSize: '1rem', marginBottom: '0.75rem' }}>
+      <div style={{ marginTop: '1.5rem' }}>
+        <h3 className="pc-sidebar-title" style={{ fontSize: '0.95rem', marginBottom: '1rem', fontWeight: 700, color: '#d4d9e8', letterSpacing: '-0.2px' }}>
           Scene Presets
         </h3>
         <select
           value={currentPreset}
           onChange={(e) => onLoadPreset(e.target.value as ScenePresetId)}
           className="pc-preset-select"
-          style={{ width: '100%' }}
+          style={{ width: '100%', padding: '0.75rem 1rem', background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '10px', color: '#ffffff', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s ease', backdropFilter: 'blur(10px)', fontFamily: 'inherit' }}
         >
           {PRESETS.map(preset => (
-            <option key={preset.id} value={preset.id}>
+            <option key={preset.id} value={preset.id} style={{ background: '#1a1f2e', color: '#ffffff' }}>
               {preset.label}
             </option>
           ))}
         </select>
       </div>
 
-      <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f0f7ff', borderRadius: '6px' }}>
-        <p style={{ margin: 0, fontSize: '0.85rem', color: '#555', lineHeight: 1.5 }}>
-          <strong>Tip:</strong> Click on the canvas to add objects. Select objects to view their properties.
+      <div style={{ marginTop: '1.5rem', padding: '1.25rem', background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.08)', backdropFilter: 'blur(10px)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)' }}>
+        <p style={{ margin: 0, fontSize: '0.9rem', color: '#8b95b2', lineHeight: 1.6 }}>
+          <strong style={{ color: '#667eea', fontWeight: 700 }}>💡 Tip:</strong> Click on the canvas to add objects. Select objects to view their properties.
         </p>
       </div>
     </div>

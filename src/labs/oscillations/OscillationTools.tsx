@@ -29,7 +29,21 @@ export const OscillationTools: React.FC<OscillationToolsProps> = ({
 }) => {
   return (
     <div className="pc-sidebar-content">
-      <h2 className="pc-sidebar-title">Controls</h2>
+      <h2 
+        className="pc-sidebar-title" 
+        style={{
+          fontSize: '1.35rem',
+          color: '#fff',
+          fontWeight: 700,
+          background: 'linear-gradient(135deg, #ffffff 0%, #d4d9e8 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          marginBottom: '1.5rem',
+          letterSpacing: '-0.5px'
+        }}
+      >
+        Oscillation Controls
+      </h2>
 
       {/* Simulation Controls */}
       <section className="pc-sidebar-section">

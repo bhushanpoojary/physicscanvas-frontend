@@ -26,7 +26,7 @@ const Header: React.FC<HeaderProps> = ({ labName = 'Mechanics Lab' }) => {
         <button className="pc-btn pc-btn-secondary" onClick={() => navigate('/')}>
           ← Home
         </button>
-        <button className="pc-btn pc-btn-secondary" disabled>
+        <button className="pc-btn pc-btn-secondary" disabled title="Share coming soon">
           Share
         </button>
       </div>
