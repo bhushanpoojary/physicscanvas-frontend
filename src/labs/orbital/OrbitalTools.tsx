@@ -1,6 +1,7 @@
 import React from 'react';
 import type { OrbitalState } from './types';
 import { ORBITAL_PRESETS } from './types';
+import '../orbital/OrbitalLab.css';
 
 interface OrbitalToolsProps {
   state: OrbitalState;
@@ -16,91 +17,113 @@ export const OrbitalTools: React.FC<OrbitalToolsProps> = ({
   onLoadPreset,
 }) => {
   return (
-    <div className="pc-tools">
-      <h2 className="pc-tools-title">🛰️ Orbital Mechanics</h2>
+    <div className="orbital-tools">
+      <h2 className="orbital-tools-title">Orbital Mechanics</h2>
 
       {/* Simulation Controls */}
-      <section className="pc-tools-section">
-        <h3 className="pc-tools-section-title">⏯️ Controls</h3>
-        <div className="pc-tools-buttons">
-          <button onClick={onTogglePause} className="pc-btn pc-btn-primary">
+      <section className="orbital-section">
+        <h3 className="orbital-section-header">
+          <span className="orbital-section-icon">⏯️</span>
+          Controls
+        </h3>
+        <div className="orbital-controls-row">
+          <button onClick={onTogglePause} className={`orbital-btn ${state.isPaused ? 'orbital-btn-play' : 'orbital-btn-pause'}`}>
             {state.isPaused ? '▶️ Play' : '⏸️ Pause'}
           </button>
-          <button onClick={onReset} className="pc-btn pc-btn-secondary">
+          <button onClick={onReset} className="orbital-btn orbital-btn-reset">
             🔄 Reset
           </button>
         </div>
       </section>
 
       {/* Presets */}
-      <section className="pc-tools-section">
-        <h3 className="pc-tools-section-title">📋 Scenarios</h3>
-        <div className="pc-preset-list">
+      <section className="orbital-section">
+        <h3 className="orbital-section-header">
+          <span className="orbital-section-icon">📋</span>
+          Scenarios
+        </h3>
+        <div className="orbital-scenarios">
           {ORBITAL_PRESETS.map((preset) => (
             <button
               key={preset.id}
               onClick={() => onLoadPreset(preset.id)}
-              className="pc-preset-item"
+              className={`orbital-scenario-card ${state.systemType === preset.systemType ? 'active' : ''}`}
               title={preset.description}
             >
-              <div className="pc-preset-name">{preset.name}</div>
-              <div className="pc-preset-desc">{preset.description}</div>
+              <div className="orbital-scenario-icon">🌍</div>
+              <div className="orbital-scenario-content">
+                <div className="orbital-scenario-name">{preset.name}</div>
+                <div className="orbital-scenario-desc">{preset.description}</div>
+              </div>
             </button>
           ))}
         </div>
       </section>
 
       {/* Kepler's Laws Info */}
-      <section className="pc-tools-section">
-        <h3 className="pc-tools-section-title">📖 Kepler's Laws</h3>
-        <div className="pc-tools-info">
-          <p>
-            <strong>1st Law:</strong> Planets orbit in ellipses with the Sun at one focus.
-          </p>
-          <p>
-            <strong>2nd Law:</strong> A line from planet to Sun sweeps equal areas in equal times.
-          </p>
-          <p>
-            <strong>3rd Law:</strong> The square of orbital period is proportional to the cube of
-            semi-major axis.
-          </p>
+      <section className="orbital-section">
+        <h3 className="orbital-section-header">
+          <span className="orbital-section-icon">📖</span>
+          Kepler's Laws
+        </h3>
+        <div className="orbital-info-card">
+          <div className="orbital-info-item">
+            <span className="orbital-info-label">1st:</span>
+            <span>Planets orbit in ellipses with the Sun at one focus.</span>
+          </div>
+          <div className="orbital-info-item">
+            <span className="orbital-info-label">2nd:</span>
+            <span>A line from planet to Sun sweeps equal areas in equal times.</span>
+          </div>
+          <div className="orbital-info-item">
+            <span className="orbital-info-label">3rd:</span>
+            <span>The square of orbital period is proportional to the cube of semi-major axis.</span>
+          </div>
         </div>
       </section>
 
       {/* Lagrange Points Info */}
       {state.showLagrangePoints && (
-        <section className="pc-tools-section">
-          <h3 className="pc-tools-section-title">🎯 Lagrange Points</h3>
-          <div className="pc-tools-info">
-            <p>
-              <strong>L1, L2, L3:</strong> Collinear points (unstable)
-            </p>
-            <p>
-              <strong>L4, L5:</strong> Triangular points (stable) - form equilateral triangles
-              with the two bodies
-            </p>
-            <p>
-              <em>Used for spacecraft parking and space telescopes!</em>
-            </p>
+        <section className="orbital-section">
+          <h3 className="orbital-section-header">
+            <span className="orbital-section-icon">🎯</span>
+            Lagrange Points
+          </h3>
+          <div className="orbital-info-card">
+            <div className="orbital-info-item">
+              <span className="orbital-info-label">L1-L3:</span>
+              <span>Collinear points (unstable)</span>
+            </div>
+            <div className="orbital-info-item">
+              <span className="orbital-info-label">L4-L5:</span>
+              <span>Triangular points (stable)</span>
+            </div>
+            <div className="orbital-info-item">
+              <em>Used for spacecraft parking and telescopes!</em>
+            </div>
           </div>
         </section>
       )}
 
       {/* System Info */}
-      <section className="pc-tools-section">
-        <h3 className="pc-tools-section-title">ℹ️ System</h3>
-        <div className="pc-tools-info">
-          <p>
-            <strong>Bodies:</strong> {state.bodies.length}
-          </p>
-          {state.spacecraft.length > 0 && (
-            <p>
-              <strong>Spacecraft:</strong> {state.spacecraft.length}
-            </p>
-          )}
-          <p>
-            <strong>Type:</strong> {state.systemType.replace('-', ' ')}
-          </p>
+      <section className="orbital-section">
+        <h3 className="orbital-section-header">
+          <span className="orbital-section-icon">ℹ️</span>
+          System
+        </h3>
+        <div className="orbital-stats">
+          <div className="orbital-stat">
+            <div className="orbital-stat-value">{state.bodies.length}</div>
+            <div className="orbital-stat-label">Bodies</div>
+          </div>
+          <div className="orbital-stat">
+            <div className="orbital-stat-value">{state.spacecraft.length}</div>
+            <div className="orbital-stat-label">Craft</div>
+          </div>
+          <div className="orbital-stat" style={{ gridColumn: '1 / -1' }}>
+            <div className="orbital-stat-value" style={{ fontSize: '0.95rem' }}>{state.systemType.replace('-', ' ')}</div>
+            <div className="orbital-stat-label">Type</div>
+          </div>
         </div>
       </section>
     </div>
