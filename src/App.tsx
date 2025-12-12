@@ -1,4 +1,3 @@
-import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from './routes/HomePage'
 import MechanicsPage from './routes/MechanicsPage'
@@ -9,7 +8,6 @@ import { CollisionPage } from './labs/collisions/CollisionPage'
 import { RotationalPage } from './labs/rotational/RotationalPage'
 import { OscillationPage } from './labs/oscillations/OscillationPage'
 import { ComingSoonPage } from './routes/ComingSoonPage'
-import BuilderPage from './routes/BuilderPage'
 import './App.css'
 
 function App() {

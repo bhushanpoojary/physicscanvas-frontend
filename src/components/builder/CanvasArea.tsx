@@ -240,10 +240,6 @@ const CanvasArea: React.FC<CanvasAreaProps> = ({
     });
   };
 
-  const handleCanvasClick: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
-    // Click is handled by mouseDown for drag functionality
-  };
-
   const handleContextMenu: React.MouseEventHandler<HTMLCanvasElement> = (e) => {
     e.preventDefault();
     

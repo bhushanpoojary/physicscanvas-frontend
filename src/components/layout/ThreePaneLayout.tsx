@@ -16,7 +16,7 @@ const ThreePaneLayout: React.FC<ThreePaneLayoutProps> = ({ simulation }) => {
       </aside>
       <main className="pc-canvas">
         <CanvasArea
-          canvasRef={simulation.canvasRef}
+          canvasRef={simulation.canvasRef as React.RefObject<HTMLCanvasElement>}
           status={simulation.status}
           gravityEnabled={simulation.gravityEnabled}
           currentPreset={simulation.currentPreset}

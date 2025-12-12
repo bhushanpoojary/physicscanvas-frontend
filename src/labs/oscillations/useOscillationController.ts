@@ -1,12 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { Oscillator, Spring, OscillationState, OscillatorType, CouplingType, DampingType } from './types';
+import type { OscillationState, OscillatorType, CouplingType, DampingType } from './types';
 import { OSCILLATION_PRESETS } from './types';
 import {
   updateOscillators,
   calculateTotalEnergy,
   getDampingCoefficient,
   estimateAmplitude,
-  calculateNormalModeFrequencies,
 } from './physics/oscillations';
 
 export interface OscillationController {
@@ -32,7 +31,7 @@ export interface OscillationController {
 export function useOscillationController(): OscillationController {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedOscillatorId, setSelectedOscillatorId] = useState<string | null>(null);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
 
   const [state, setState] = useState<OscillationState>(() => {
     const preset = OSCILLATION_PRESETS[0];

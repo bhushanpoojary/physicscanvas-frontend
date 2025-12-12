@@ -24,9 +24,9 @@ export const CollisionPage: React.FC = () => {
         <main className="pc-canvas">
           <CollisionCanvas
             state={controller.state}
-            canvasRef={controller.canvasRef}
-            onAddBall={controller.addBall}
-            onSelectBall={controller.selectBall}
+            canvasRef={controller.canvasRef as React.RefObject<HTMLCanvasElement>}
+            onBallClick={controller.selectBall}
+            onCanvasClick={controller.addBall}
             selectedBallId={controller.selectedBallId}
           />
         </main>

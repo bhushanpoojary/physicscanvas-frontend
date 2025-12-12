@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   labName?: string;
@@ -7,7 +7,6 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ labName = 'Mechanics Lab' }) => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   return (
     <header className="pc-header">

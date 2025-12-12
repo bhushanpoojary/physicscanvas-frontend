@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { RelativityToolType, ScenePresetId } from './types';
 
 const TOOLS: { type: RelativityToolType; name: string; icon: string; description: string }[] = [

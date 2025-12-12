@@ -150,7 +150,7 @@ export const OscillationProperties: React.FC<OscillationPropertiesProps> = ({
       <section className="pc-properties-section">
         <h3 className="pc-properties-section-title">🔩 Springs</h3>
         
-        {state.springs.map((spring, index) => {
+        {state.springs.map((spring) => {
           const osc1 = spring.oscillator1Id
             ? state.oscillators.find((o) => o.id === spring.oscillator1Id)
             : null;

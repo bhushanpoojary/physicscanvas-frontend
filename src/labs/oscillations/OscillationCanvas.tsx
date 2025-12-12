@@ -42,7 +42,7 @@ export const OscillationCanvas: React.FC<OscillationCanvasProps> = ({
 
     // Draw springs
     for (const spring of state.springs) {
-      drawSpring(ctx, spring, state.oscillators, canvas);
+      drawSpring(ctx, spring, state.oscillators);
     }
 
     // Draw trails if enabled
@@ -168,8 +168,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number) 
 function drawSpring(
   ctx: CanvasRenderingContext2D,
   spring: Spring,
-  oscillators: Oscillator[],
-  canvas: HTMLCanvasElement
+  oscillators: Oscillator[]
 ) {
   const osc1 = spring.oscillator1Id
     ? oscillators.find(o => o.id === spring.oscillator1Id)

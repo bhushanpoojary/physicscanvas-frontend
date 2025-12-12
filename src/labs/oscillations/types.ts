@@ -18,7 +18,7 @@ export interface Oscillator {
 export interface Spring {
   id: string;
   oscillator1Id: string | null; // null means wall
-  oscillator2Id: string;
+  oscillator2Id: string | null;
   k: number; // Spring constant
   naturalLength: number;
   color: string;
