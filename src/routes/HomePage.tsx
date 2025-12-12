@@ -21,6 +21,17 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="pc-landing">
+      {/* Feedback Button */}
+      <a
+        href="https://github.com/bhushanpoojary/physicscanvas-frontend/issues"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="pc-feedback-button"
+        title="Provide feedback or request features"
+      >
+        💬 Feedback
+      </a>
+      
       <header className="pc-landing-header">
         <div className="pc-landing-header-content">
           <h1 className="pc-landing-title">
