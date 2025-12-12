@@ -59,7 +59,7 @@ export const ChaosCanvas: React.FC<ChaosCanvasProps> = ({
 
   }, [state, canvasRef, selectedItemId]);
 
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 

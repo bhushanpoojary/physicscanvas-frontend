@@ -1,10 +1,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { ChaosState, ChaosSystemType, DoublePendulum, LorenzPoint } from './types';
+import type { ChaosState, ChaosSystemType } from './types';
 import { CHAOS_PRESETS } from './types';
 import {
   updateDoublePendulum,
   updateLorenzPoint,
-  calculateDoublePendulumEnergy,
 } from './physics/chaos';
 
 export interface ChaosController {
@@ -38,7 +37,7 @@ export function useChaosController(): ChaosController {
     const preset = CHAOS_PRESETS[0];
     return {
       systemType: preset.systemType,
-      isPaused: false,
+      isPaused: true,
       time: 0,
       gravity: 9.81,
       pendulums:
@@ -234,27 +233,31 @@ export function useChaosController(): ChaosController {
 
   // Animation loop
   useEffect(() => {
-    if (state.isPaused) {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = undefined;
-      }
-      return;
-    }
-
     let lastTime = performance.now();
+    let lastUpdateTime = Date.now();
 
     const animate = (currentTime: number) => {
-      const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+      const now = Date.now();
+      const elapsed = now - lastUpdateTime;
+      
+      // Limit update rate to 60 FPS
+      if (elapsed < 16) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      
+      lastUpdateTime = now;
+      const deltaTime = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
 
       setState((prev) => {
+        if (prev.isPaused) return prev;
+        
         const dt = Math.min(deltaTime * prev.speed, 0.05); // Cap dt to prevent instability
 
         // Update double pendulums
         const updatedPendulums = prev.pendulums.map((pendulum) => {
           const updated = updateDoublePendulum(pendulum, prev.gravity, dt);
-          // Trim trail to max length
           const trimmedTrail = updated.trail.slice(-prev.trailLength);
           return { ...updated, trail: trimmedTrail };
         });
@@ -262,7 +265,6 @@ export function useChaosController(): ChaosController {
         // Update Lorenz points
         const updatedLorenzPoints = prev.lorenzPoints.map((point) => {
           const updated = updateLorenzPoint(point, prev.sigma, prev.rho, prev.beta, dt);
-          // Trim trail to max length
           const trimmedTrail = updated.trail.slice(-prev.trailLength);
           return { ...updated, trail: trimmedTrail };
         });
@@ -285,7 +287,7 @@ export function useChaosController(): ChaosController {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [state.isPaused, state.speed]);
+  }, []);
 
   return {
     state,
