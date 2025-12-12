@@ -163,10 +163,10 @@ export const ORBITAL_PRESETS: OrbitalPreset[] = [
       },
       {
         name: 'Comet',
-        x: 150000000,
+        x: 10000000,
         y: 0,
         vx: 0,
-        vy: 12000,
+        vy: 100000,
         mass: 1e12,
         radius: 8,
         color: '#95a5a6',
