@@ -81,6 +81,8 @@ export interface OrbitalPreset {
   bodies: Partial<CelestialBody>[];
   spacecraft?: Partial<Spacecraft>[];
   showLagrangePoints?: boolean;
+  defaultSpeed?: number;
+  defaultTimeStep?: number;
 }
 
 export const ORBITAL_PRESETS: OrbitalPreset[] = [
@@ -119,6 +121,7 @@ export const ORBITAL_PRESETS: OrbitalPreset[] = [
     name: 'Circular Orbit',
     description: 'Perfect circular orbit around Earth',
     systemType: 'two-body',
+    defaultSpeed: 1,
     bodies: [
       {
         name: 'Earth',
@@ -175,47 +178,6 @@ export const ORBITAL_PRESETS: OrbitalPreset[] = [
     ],
   },
   {
-    id: 'sun-earth-moon',
-    name: 'Sun-Earth-Moon',
-    description: 'Three-body system showing Earth\'s orbit and Moon',
-    systemType: 'three-body',
-    bodies: [
-      {
-        name: 'Sun',
-        x: 0,
-        y: 0,
-        vx: 0,
-        vy: 0,
-        mass: 1.989e30,
-        radius: 40,
-        color: '#f39c12',
-        isFixed: true,
-      },
-      {
-        name: 'Earth',
-        x: 149600000,
-        y: 0,
-        vx: 0,
-        vy: 29800,
-        mass: 5.972e24,
-        radius: 20,
-        color: '#4a90e2',
-        isFixed: false,
-      },
-      {
-        name: 'Moon',
-        x: 149600000 + 384400,
-        y: 0,
-        vx: 0,
-        vy: 29800 + 1022,
-        mass: 7.342e22,
-        radius: 8,
-        color: '#bbb',
-        isFixed: false,
-      },
-    ],
-  },
-  {
     id: 'lagrange-points',
     name: 'Lagrange Points',
     description: 'Earth-Moon system showing L1-L5 Lagrange points',
@@ -243,37 +205,6 @@ export const ORBITAL_PRESETS: OrbitalPreset[] = [
         radius: 10,
         color: '#bbb',
         isFixed: false,
-      },
-    ],
-  },
-  {
-    id: 'hohmann-transfer',
-    name: 'Hohmann Transfer',
-    description: 'Efficient orbital transfer between two circular orbits',
-    systemType: 'mission',
-    bodies: [
-      {
-        name: 'Earth',
-        x: 0,
-        y: 0,
-        vx: 0,
-        vy: 0,
-        mass: 5.972e24,
-        radius: 30,
-        color: '#4a90e2',
-        isFixed: true,
-      },
-    ],
-    spacecraft: [
-      {
-        name: 'Spacecraft',
-        x: 7000,
-        y: 0,
-        vx: 0,
-        vy: 7546,
-        color: '#e74c3c',
-        fuel: 100,
-        thrust: 50,
       },
     ],
   },

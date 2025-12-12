@@ -15,9 +15,6 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log('[OrbitalCanvas] useEffect triggered');
-    const startTime = performance.now();
-    
     const canvas = canvasRef.current;
     if (!canvas) return;
 

@@ -76,8 +76,8 @@ export function useOrbitalController(): OrbitalController {
       showOrbitalElements: true,
       showLagrangePoints: preset.showLagrangePoints ?? false,
       trailLength: 1000,
-      speed: 10,
-      timeStep: 1,
+      speed: preset.defaultSpeed ?? 10,
+      timeStep: preset.defaultTimeStep ?? 1,
       selectedId: null,
     };
   });
@@ -108,6 +108,8 @@ export function useOrbitalController(): OrbitalController {
         })),
       spacecraft: [],
       lagrangePoints: [],
+      speed: preset.defaultSpeed ?? prev.speed,
+      timeStep: preset.defaultTimeStep ?? prev.timeStep,
     }));
   }, []);
 
@@ -170,6 +172,8 @@ export function useOrbitalController(): OrbitalController {
         })) ?? [],
       lagrangePoints: [],
       showLagrangePoints: preset.showLagrangePoints ?? false,
+      speed: preset.defaultSpeed ?? prev.speed,
+      timeStep: preset.defaultTimeStep ?? prev.timeStep,
       selectedId: null,
     }));
   }, []);
@@ -202,8 +206,8 @@ export function useOrbitalController(): OrbitalController {
       const currentTime = Date.now();
       const elapsed = currentTime - lastUpdateTime;
       
-      // Limit update rate to 20 FPS for performance
-      if (elapsed < 50) {
+      // Limit update rate to ~16 FPS for better performance
+      if (elapsed < 60) {
         animationFrameRef.current = requestAnimationFrame(animate);
         return;
       }
@@ -213,41 +217,50 @@ export function useOrbitalController(): OrbitalController {
       setState((prev) => {
         if (prev.isPaused) return prev;
         
-        // Use larger time step for visible motion (10 seconds per frame)
-        const dt = prev.timeStep * prev.speed * 10;
+        const totalDt = prev.timeStep * prev.speed;
+        const steps = Math.min(200, Math.max(1, Math.ceil(prev.speed)));
+        const dt = steps > 0 ? totalDt / steps : totalDt;
 
-        // Update celestial bodies
-        const updatedBodies = prev.bodies.map((body) => {
-          const updated = updateCelestialBody(body, prev.bodies, prev.gravitationalConstant, dt);
-          const trimmedTrail = updated.trail.slice(-prev.trailLength);
-          return { ...updated, trail: trimmedTrail };
-        });
+        let bodies = prev.bodies;
+        let spacecraft = prev.spacecraft;
 
-        // Update spacecraft only if present (skip expensive calculation if empty)
-        const updatedSpacecraft = prev.spacecraft.length > 0 
-          ? prev.spacecraft.map((spacecraft) => {
-              const updated = updateSpacecraft(
-                spacecraft,
-                updatedBodies,
-                prev.gravitationalConstant,
-                dt
-              );
-              const trimmedTrail = updated.trail.slice(-prev.trailLength);
-              return { ...updated, trail: trimmedTrail };
-            })
-          : [];
+        for (let step = 0; step < steps; step++) {
+          const bodiesSnapshot = bodies;
+          const updatedBodiesStep = bodiesSnapshot.map((body) =>
+            updateCelestialBody(body, bodiesSnapshot, prev.gravitationalConstant, dt)
+          );
+          bodies = updatedBodiesStep;
+
+          if (spacecraft.length > 0) {
+            const spacecraftSnapshot = spacecraft;
+            const updatedSpacecraftStep = spacecraftSnapshot.map((craft) =>
+              updateSpacecraft(craft, bodies, prev.gravitationalConstant, dt)
+            );
+            spacecraft = updatedSpacecraftStep;
+          }
+        }
+
+        const trimmedBodies = bodies.map((body) => ({
+          ...body,
+          trail: body.trail.slice(-prev.trailLength),
+        }));
+
+        const trimmedSpacecraft = spacecraft.map((craft) => ({
+          ...craft,
+          trail: craft.trail.slice(-prev.trailLength),
+        }));
 
         // Calculate Lagrange points only when checkbox is enabled
         let lagrangePoints = prev.lagrangePoints;
-        if (prev.showLagrangePoints && updatedBodies.length >= 2) {
-          lagrangePoints = calculateLagrangePoints(updatedBodies[0], updatedBodies[1]);
+        if (prev.showLagrangePoints && trimmedBodies.length >= 2) {
+          lagrangePoints = calculateLagrangePoints(trimmedBodies[0], trimmedBodies[1]);
         }
 
         return {
           ...prev,
-          time: prev.time + dt,
-          bodies: updatedBodies,
-          spacecraft: updatedSpacecraft,
+          time: prev.time + totalDt,
+          bodies: trimmedBodies,
+          spacecraft: trimmedSpacecraft,
           lagrangePoints,
         };
       });
