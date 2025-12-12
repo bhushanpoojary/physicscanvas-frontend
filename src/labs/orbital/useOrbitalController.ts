@@ -75,7 +75,7 @@ export function useOrbitalController(): OrbitalController {
       showGrid: true,
       showOrbitalElements: true,
       showLagrangePoints: preset.showLagrangePoints ?? false,
-      trailLength: 1000,
+      trailLength: 300,
       speed: preset.defaultSpeed ?? 10,
       timeStep: preset.defaultTimeStep ?? 1,
       selectedId: null,

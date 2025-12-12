@@ -91,6 +91,8 @@ export const ORBITAL_PRESETS: OrbitalPreset[] = [
     name: 'Earth-Moon System',
     description: 'Simple two-body orbital system',
     systemType: 'two-body',
+    defaultSpeed: 200,
+    defaultTimeStep: 300,
     bodies: [
       {
         name: 'Earth',
@@ -121,7 +123,8 @@ export const ORBITAL_PRESETS: OrbitalPreset[] = [
     name: 'Circular Orbit',
     description: 'Perfect circular orbit around Earth',
     systemType: 'two-body',
-    defaultSpeed: 1,
+    defaultSpeed: 250,
+    defaultTimeStep: 300,
     bodies: [
       {
         name: 'Earth',
@@ -152,6 +155,8 @@ export const ORBITAL_PRESETS: OrbitalPreset[] = [
     name: 'Elliptical Orbit',
     description: 'Highly elliptical orbit (Kepler\'s First Law)',
     systemType: 'two-body',
+    defaultSpeed: 200,
+    defaultTimeStep: 300,
     bodies: [
       {
         name: 'Sun',
@@ -183,6 +188,8 @@ export const ORBITAL_PRESETS: OrbitalPreset[] = [
     description: 'Earth-Moon system showing L1-L5 Lagrange points',
     systemType: 'lagrange',
     showLagrangePoints: true,
+    defaultSpeed: 200,
+    defaultTimeStep: 300,
     bodies: [
       {
         name: 'Earth',

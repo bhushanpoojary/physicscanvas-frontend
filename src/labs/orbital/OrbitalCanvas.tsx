@@ -228,9 +228,13 @@ function drawTrail(
   centerY: number,
   scale: number
 ) {
+  if (trail.length < 2) return;
+
   ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
-  ctx.globalAlpha = 0.5;
+  ctx.lineWidth = 1.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.globalAlpha = 0.4;
   ctx.beginPath();
 
   for (let i = 0; i < trail.length; i++) {
