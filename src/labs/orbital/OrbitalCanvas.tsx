@@ -42,13 +42,11 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
     const scale = calculateScale(state.bodies, canvas.width, canvas.height);
 
     // Draw grid if enabled
-    console.log('[OrbitalCanvas] Drawing grid...');
     if (state.showGrid) {
       drawGrid(ctx, canvas.width, canvas.height, centerX, centerY, scale);
     }
 
     // Draw Lagrange points if enabled
-    console.log('[OrbitalCanvas] Drawing Lagrange points...');
     if (state.showLagrangePoints && state.lagrangePoints.length > 0) {
       state.lagrangePoints.forEach((point) => {
         drawLagrangePoint(ctx, point, centerX, centerY, scale);
@@ -56,7 +54,6 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
     }
 
     // Draw trails
-    console.log('[OrbitalCanvas] Drawing trails...');
     if (state.showTrails) {
       state.bodies.forEach((body) => {
         if (body.trail.length > 1) {
@@ -71,11 +68,9 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
     }
 
     // Draw bodies
-    console.log('[OrbitalCanvas] Drawing bodies...');
     state.bodies.forEach((body) => {
       drawCelestialBody(ctx, body, centerX, centerY, scale, state.selectedId);
     });
-    console.log('[OrbitalCanvas] Bodies drawn');
 
     // Draw spacecraft
     state.spacecraft.forEach((sc) => {
@@ -99,14 +94,6 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
     ctx.font = '14px monospace';
     ctx.fillText(`Time: ${(state.time / 86400).toFixed(2)} days`, 10, 20);
     ctx.fillText(state.isPaused ? '⏸️ PAUSED' : '▶️ RUNNING', 10, 40);
-    ctx.fillText(`Bodies: ${state.bodies.length}, Scale: ${scale.toFixed(6)}`, 10, 60);
-    
-    // Debug: Draw center marker
-    ctx.fillStyle = '#ff0000';
-    ctx.fillRect(centerX - 5, centerY - 5, 10, 10);
-    
-    const endTime = performance.now();
-    console.log(`[OrbitalCanvas] useEffect completed in ${(endTime - startTime).toFixed(2)}ms`);
   }, [
     state.bodies,
     state.spacecraft,
@@ -167,7 +154,6 @@ export const OrbitalCanvas: React.FC<OrbitalCanvasProps> = ({
 };
 
 function calculateScale(bodies: CelestialBody[], width: number, height: number): number {
-  console.log(`[calculateScale] Called with ${bodies.length} bodies`);
   if (bodies.length === 0) return 0.001;
 
   let maxDistance = 0;
@@ -193,16 +179,13 @@ function drawGrid(
   centerY: number,
   scale: number
 ) {
-  console.log('[drawGrid] Starting with scale:', scale);
   ctx.strokeStyle = '#1a1a1a';
   ctx.lineWidth = 1;
 
   const gridSpacing = 50000 * scale; // 50,000 km in screen units
-  console.log('[drawGrid] gridSpacing:', gridSpacing);
   
   // Safety check: if gridSpacing is too small, skip drawing grid
   if (gridSpacing < 10) {
-    console.log('[drawGrid] gridSpacing too small, skipping');
     return;
   }
 
@@ -225,7 +208,6 @@ function drawGrid(
     ctx.lineTo(width, y);
     ctx.stroke();
   }
-  console.log('[drawGrid] Completed');
 
   // Center axes
   ctx.strokeStyle = '#333';

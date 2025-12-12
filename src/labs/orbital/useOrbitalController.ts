@@ -76,7 +76,7 @@ export function useOrbitalController(): OrbitalController {
       showOrbitalElements: true,
       showLagrangePoints: preset.showLagrangePoints ?? false,
       trailLength: 1000,
-      speed: 1,
+      speed: 10,
       timeStep: 1,
       selectedId: null,
     };
@@ -188,16 +188,13 @@ export function useOrbitalController(): OrbitalController {
 
   // Animation loop
   useEffect(() => {
-    console.log('[useOrbitalController] Animation effect triggered, isPaused:', state.isPaused);
     if (state.isPaused) {
-      console.log('[useOrbitalController] Paused, canceling animation');
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = undefined;
       }
       return;
     }
-    console.log('[useOrbitalController] Starting animation loop');
 
     let lastUpdateTime = Date.now();
 
@@ -211,25 +208,17 @@ export function useOrbitalController(): OrbitalController {
         return;
       }
       
-      console.log('[useOrbitalController] Animation frame executing');
-      
       lastUpdateTime = currentTime;
 
       setState((prev) => {
-        if (prev.isPaused) {
-          console.log('[useOrbitalController] setState called but paused, returning');
-          return prev;
-        }
+        if (prev.isPaused) return prev;
         
-        // Use much smaller time step for stability (0.1 seconds max)
-        const dt = Math.min(prev.timeStep * prev.speed * 0.1, 0.1);
-        console.log('[useOrbitalController] dt:', dt, 'timeStep:', prev.timeStep, 'speed:', prev.speed);
+        // Use larger time step for visible motion (10 seconds per frame)
+        const dt = prev.timeStep * prev.speed * 10;
 
         // Update celestial bodies
-        const updatedBodies = prev.bodies.map((body, index) => {
-          console.log(`[useOrbitalController] Before update body ${index} (${body.name}): x=${body.x}, y=${body.y}, vx=${body.vx}, vy=${body.vy}`);
+        const updatedBodies = prev.bodies.map((body) => {
           const updated = updateCelestialBody(body, prev.bodies, prev.gravitationalConstant, dt);
-          console.log(`[useOrbitalController] After update body ${index} (${updated.name}): x=${updated.x}, y=${updated.y}, vx=${updated.vx}, vy=${updated.vy}`);
           const trimmedTrail = updated.trail.slice(-prev.trailLength);
           return { ...updated, trail: trimmedTrail };
         });

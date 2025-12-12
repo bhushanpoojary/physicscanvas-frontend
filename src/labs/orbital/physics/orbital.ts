@@ -52,17 +52,18 @@ export function updateCelestialBody(
     totalFy += force.fy;
   }
 
-  // Calculate acceleration
+  // Calculate acceleration (m/s²)
   const ax = totalFx / body.mass;
   const ay = totalFy / body.mass;
 
-  // Update velocity (semi-implicit Euler for stability)
+  // Update velocity (m/s) - semi-implicit Euler for stability
   const newVx = body.vx + ax * dt;
   const newVy = body.vy + ay * dt;
 
-  // Update position
-  const newX = body.x + newVx * dt;
-  const newY = body.y + newVy * dt;
+  // Update position (convert m/s to km/s, then multiply by dt)
+  // Positions are in km, velocities in m/s, so divide velocity by 1000
+  const newX = body.x + (newVx * dt) / 1000;
+  const newY = body.y + (newVy * dt) / 1000;
 
   return {
     ...body,
@@ -104,17 +105,17 @@ export function updateSpacecraft(
     totalFy += thrustVector.y * spacecraft.thrust;
   }
 
-  // Calculate acceleration
+  // Calculate acceleration (m/s²)
   const ax = totalFx / 1000;
   const ay = totalFy / 1000;
 
-  // Update velocity
+  // Update velocity (m/s)
   const newVx = spacecraft.vx + ax * dt;
   const newVy = spacecraft.vy + ay * dt;
 
-  // Update position
-  const newX = spacecraft.x + newVx * dt;
-  const newY = spacecraft.y + newVy * dt;
+  // Update position (convert m/s to km/s, then multiply by dt)
+  const newX = spacecraft.x + (newVx * dt) / 1000;
+  const newY = spacecraft.y + (newVy * dt) / 1000;
 
   // Update fuel if thrust was used
   const newFuel = thrustVector ? Math.max(0, spacecraft.fuel - 0.1 * dt) : spacecraft.fuel;
