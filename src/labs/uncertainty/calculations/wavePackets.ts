@@ -21,9 +21,10 @@ export function computeGaussianWavePacket(
   const psiP: number[] = [];
   const probabilityP: number[] = [];
   
-  // Position space calculation
-  const xMin = x0 - 5 * sigma;
-  const xMax = x0 + 5 * sigma;
+  // Position space calculation - expand range to show full context
+  const rangeWidth = Math.max(8 * sigma, 15);
+  const xMin = x0 - rangeWidth / 2;
+  const xMax = x0 + rangeWidth / 2;
   const dx = (xMax - xMin) / (numPoints - 1);
   
   // Normalization constant
